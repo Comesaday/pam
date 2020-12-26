@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>cn.comesaday</groupId>
-    <artifactId>coe</artifactId>
+    <artifactId>pam.coe</artifactId>
     <version>0.0.1</version>
-    <name>coe</name>
+    <name>pam.coe</name>
     <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
 
