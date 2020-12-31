@@ -1,7 +1,7 @@
 package cn.comesaday.coe.core.basic.bean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -10,7 +10,7 @@ import java.util.Map;
  * @author: ChenWei
  * @CreateAt: 2020-08-10 13:35
  */
-public class JsonResult {
+public class JsonResult implements Serializable {
 
     private boolean success = true;
 
