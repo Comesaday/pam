@@ -1,6 +1,8 @@
 package cn.comesaday.coe.core.app;
 
+import cn.comesaday.coe.core.api.service.ApiService;
 import cn.comesaday.coe.core.jpa.factory.MyRepositoryFactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -25,4 +27,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 // 事务控制
 @EnableTransactionManagement
 public class BasicApplication {
+
+    @Autowired
+    private ApiService apiService;
+
+    public void register() {
+        apiService.apis();
+    }
 }
