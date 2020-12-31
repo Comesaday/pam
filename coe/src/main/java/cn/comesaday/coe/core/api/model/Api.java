@@ -36,7 +36,7 @@ public class Api extends IdEntity {
      */
     @Column
     @Length(min = 1, max = 1000)
-    private String api_powers;
+    private String apiPowers;
 
     /**
      * @Fields  : 请求方式 POST OR GET
@@ -74,12 +74,12 @@ public class Api extends IdEntity {
         this.name = name;
     }
 
-    public String getApi_powers() {
-        return api_powers;
+    public String getApiPowers() {
+        return apiPowers;
     }
 
-    public void setApi_powers(String api_powers) {
-        this.api_powers = api_powers;
+    public void setApiPowers(String apiPowers) {
+        this.apiPowers = apiPowers;
     }
 
     public String getMethod() {
