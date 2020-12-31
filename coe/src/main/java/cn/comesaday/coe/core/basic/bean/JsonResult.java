@@ -1,5 +1,7 @@
 package cn.comesaday.coe.core.basic.bean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Map;
 
 /**
@@ -10,7 +12,7 @@ import java.util.Map;
  */
 public class JsonResult {
 
-    private boolean success;
+    private boolean success = true;
 
     private String message;
 
@@ -72,7 +74,7 @@ public class JsonResult {
      * @date 2020/8/10 14:58
      * @return void
      */
-    public void setAbnormal(String message) {
+    public void setError(String message) {
         this.success = false;
         this.message = message;
     }
@@ -85,9 +87,32 @@ public class JsonResult {
      * @date 2020/8/10 14:59
      * @return void
      */
-    public void setNolmal(String message, Map<String, Object> data) {
+    public void setSuccess(String message, Map<String, Object> data) {
         this.success = true;
         this.message = message;
         this.data = data;
+    }
+
+    /**
+     * <说明> 未出现异常情况
+     * @param message String 提示消息
+     * @author ChenWei
+     * @date 2020/8/10 14:59
+     * @return void
+     */
+    public void setSuccess(String message) {
+        this.success = true;
+        this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        String json = "";
+        try {
+            json = new ObjectMapper().writeValueAsString(this);
+        } catch (Exception e) {
+
+        }
+        return json;
     }
 }
