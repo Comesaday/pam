@@ -1,4 +1,4 @@
-package cn.comesaday.coe.core.app;
+package cn.comesaday.coe.core.basic.app;
 
 import cn.comesaday.coe.core.jpa.factory.MyRepositoryFactoryBean;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

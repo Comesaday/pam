@@ -15,4 +15,7 @@ import java.io.Serializable;
 public interface MyRepository<T, ID extends Serializable>
         extends JpaRepository<T, ID> {
 
+    @Override
+    <S extends T> S save(S entity);
+
 }
