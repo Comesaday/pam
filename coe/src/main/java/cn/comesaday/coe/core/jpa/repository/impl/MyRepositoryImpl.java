@@ -3,7 +3,6 @@ package cn.comesaday.coe.core.jpa.repository.impl;
 import cn.comesaday.coe.core.jpa.repository.MyRepository;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.EntityManager;
 import java.io.Serializable;
 

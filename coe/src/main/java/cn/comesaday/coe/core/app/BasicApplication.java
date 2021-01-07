@@ -4,6 +4,7 @@ import cn.comesaday.coe.core.jpa.factory.MyRepositoryFactoryBean;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -21,7 +22,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 // jpa功能扩展
 @EnableJpaRepositories(repositoryFactoryBeanClass = MyRepositoryFactoryBean.class)
 // 自动装配
-@SpringBootApplication(scanBasePackages = {"cn.comesaday"})
+@SpringBootApplication(scanBasePackages = {"cn.comesaday.*"})
+// 注解扫描
+@ComponentScan(value = "cn.comesaday.*")
 // 事务控制
 @EnableTransactionManagement
 public class BasicApplication {
