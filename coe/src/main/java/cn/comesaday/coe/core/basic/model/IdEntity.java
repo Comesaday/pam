@@ -25,7 +25,7 @@ public class IdEntity implements Serializable {
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createAt = new Date();
+    private Date createAt;
 
     @Column
     private Long creator;

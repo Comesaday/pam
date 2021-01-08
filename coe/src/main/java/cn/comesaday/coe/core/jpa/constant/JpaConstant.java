@@ -10,6 +10,8 @@ package cn.comesaday.coe.core.jpa.constant;
 public class JpaConstant {
 
     public class Field {
+        public static final String ID = "Id";
+
         public static final String CREATEAT = "createAt";
 
         public static final String UPDATEAT = "updateAt";
@@ -18,8 +20,8 @@ public class JpaConstant {
 
         public static final String UPDATER = "updater";
 
-        public static final String ISDISABLED = "updateAt";
+        public static final String ISDISABLED = "isDisabled";
 
-        public static final String ISDELETED = "updateAt";
+        public static final String ISDELETED = "isDeleted";
     }
 }
