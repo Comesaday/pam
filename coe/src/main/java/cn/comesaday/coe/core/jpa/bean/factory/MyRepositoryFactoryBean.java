@@ -1,7 +1,7 @@
-package cn.comesaday.coe.core.jpa.factory;
+package cn.comesaday.coe.core.jpa.bean.factory;
 
 import cn.comesaday.coe.core.basic.model.IdEntity;
-import cn.comesaday.coe.core.jpa.repository.impl.MyRepositoryImpl;
+import cn.comesaday.coe.core.jpa.bean.repository.impl.MyRepositoryImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;

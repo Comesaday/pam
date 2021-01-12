@@ -1,8 +1,8 @@
-package cn.comesaday.coe.core.jpa.repository.impl;
+package cn.comesaday.coe.core.jpa.bean.repository.impl;
 
 import cn.comesaday.coe.core.jpa.constant.JpaConstant;
-import cn.comesaday.coe.core.jpa.repository.MyRepository;
-import cn.comesaday.coe.core.jpa.util.JpaUtil;
+import cn.comesaday.coe.core.jpa.bean.repository.MyRepository;
+import cn.comesaday.coe.common.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -117,7 +117,7 @@ public class MyRepositoryImpl<T, ID extends Serializable>
                         .getDeclaredField(JpaConstant.Field.UPDATEAT);
                 updateAt.setAccessible(Boolean.TRUE);
                 updateAt.set(entity, new Date());
-                BeanUtils.copyProperties(entity, oldEntity, JpaUtil.getNullProperties(entity));
+                BeanUtils.copyProperties(entity, oldEntity, BeanUtil.getNullProperties(entity));
                 return super.save(oldEntity);
             }
         } catch (NoSuchFieldException e) {

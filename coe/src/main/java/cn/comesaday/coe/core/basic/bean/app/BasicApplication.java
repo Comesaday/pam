@@ -1,6 +1,6 @@
-package cn.comesaday.coe.core.basic.app;
+package cn.comesaday.coe.core.basic.bean.app;
 
-import cn.comesaday.coe.core.jpa.factory.MyRepositoryFactoryBean;
+import cn.comesaday.coe.core.jpa.bean.factory.MyRepositoryFactoryBean;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;

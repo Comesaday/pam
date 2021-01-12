@@ -1,4 +1,4 @@
-package cn.comesaday.coe.common.http.result;
+package cn.comesaday.coe.core.basic.bean.result;
 
 /**
  * <Descripe> io操作基础工具类

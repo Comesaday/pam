@@ -1,4 +1,4 @@
-package cn.comesaday.coe.core.jpa.repository;
+package cn.comesaday.coe.core.jpa.bean.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;

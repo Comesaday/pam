@@ -1,6 +1,7 @@
-package cn.comesaday.coe.core.basic.bean;
+package cn.comesaday.coe.core.basic.bean.result;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import java.util.Map;
 public class JsonResult implements Serializable {
 
     private boolean success = true;
+
+    private String code;
 
     private String message;
 
@@ -67,28 +70,55 @@ public class JsonResult implements Serializable {
         this.data = data;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     /**
      * <说明> 出现异常
-     * @param message String 提示消息
+     * @param code String 提示消息
      * @author ChenWei
      * @date 2020/8/10 14:58
      * @return void
      */
-    public void setError(String message) {
+    public void setError(String code) {
+        this.success = false;
+        this.code = code;
+    }
+
+    public void setError(String code, String message) {
         this.success = false;
         this.message = message;
+        this.code = code;
     }
 
     /**
      * <说明> 未出现异常情况
-     * @param message String 提示消息
+     * @param code String 提示消息
      * @param data Map<String, Object> 返回数据
      * @author ChenWei
      * @date 2020/8/10 14:59
      * @return void
      */
-    public void setSuccess(String message, Map<String, Object> data) {
+    public void setSuccess(String code, Map<String, Object> data) {
         this.success = true;
+        this.code = code;
+        this.data = data;
+    }
+
+    public void setSuccess(String code, String message) {
+        this.success = true;
+        this.code = code;
+        this.message = message;
+    }
+
+    public void setSuccess(String code, String message, Map<String, Object> data) {
+        this.success = true;
+        this.code = code;
         this.message = message;
         this.data = data;
     }

@@ -1,4 +1,4 @@
-package cn.comesaday.coe.common.json.util;
+package cn.comesaday.coe.common.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;

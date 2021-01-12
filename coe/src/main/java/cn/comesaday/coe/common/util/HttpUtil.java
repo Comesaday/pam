@@ -1,6 +1,6 @@
-package cn.comesaday.coe.common.http.util;
+package cn.comesaday.coe.common.util;
 
-import cn.comesaday.coe.common.http.result.HttpResult;
+import cn.comesaday.coe.core.basic.bean.result.HttpResult;
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;

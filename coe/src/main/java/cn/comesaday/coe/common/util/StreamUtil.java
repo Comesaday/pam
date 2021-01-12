@@ -1,4 +1,4 @@
-package cn.comesaday.coe.common.stream.util;
+package cn.comesaday.coe.common.util;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

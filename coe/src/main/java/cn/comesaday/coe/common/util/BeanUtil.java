@@ -1,8 +1,7 @@
-package cn.comesaday.coe.core.jpa.util;
+package cn.comesaday.coe.common.util;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-
 import java.beans.PropertyDescriptor;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +13,7 @@ import java.util.Set;
  * @author: ChenWei
  * @CreateAt: 2021-01-08 16:57
  */
-public class JpaUtil<T> {
+public class BeanUtil {
 
     public static String[] getNullProperties(Object object) {
         BeanWrapper beanWrapper = new BeanWrapperImpl(object);
