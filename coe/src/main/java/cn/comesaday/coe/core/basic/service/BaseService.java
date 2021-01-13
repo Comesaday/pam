@@ -20,12 +20,8 @@ import java.util.Optional;
  */
 public abstract class BaseService<T, ID extends Serializable> implements MyRepository<T, ID> {
 
-    private MyRepository<T, ID> myRepository;
-
     @Autowired
-    public MyRepository<T, ID> getMyRepository() {
-        return myRepository;
-    }
+    private MyRepository<T, ID> myRepository;
 
     @Override
     public <S extends T> S save(S s) {
@@ -145,5 +141,20 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
     @Override
     public <S extends T> boolean exists(Example<S> example) {
         return myRepository.exists(example);
+    }
+
+    public <S extends T> S findOne(S entity) {
+        Example<S> example = Example.of(entity);
+        return this.findOne(example).orElse(null);
+    }
+
+    public <S extends T> List<S> findAll(S entity) {
+        Example<S> example = Example.of(entity);
+        return this.findAll(example);
+    }
+
+    public <S extends T> Page<S> findAll(S entity, Pageable pageable) {
+        Example<S> example = Example.of(entity);
+        return this.findAll(example, pageable);
     }
 }
