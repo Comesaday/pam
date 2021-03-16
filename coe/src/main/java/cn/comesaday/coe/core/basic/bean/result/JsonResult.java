@@ -1,7 +1,6 @@
 package cn.comesaday.coe.core.basic.bean.result;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * <Descripe>
@@ -15,7 +14,20 @@ public class JsonResult implements Serializable {
 
     private String message;
 
-    private Map<String, Object> data;
+    private Object data;
+
+    public JsonResult() {
+    }
+
+    public JsonResult(boolean success, String message) {
+        this.success = success;
+        this.message = message;
+    }
+
+    public JsonResult(boolean success, Object data) {
+        this.success = success;
+        this.data = data;
+    }
 
     public boolean isSuccess() {
         return success;
@@ -33,11 +45,11 @@ public class JsonResult implements Serializable {
         this.message = message;
     }
 
-    public Map<String, Object> getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(Map<String, Object> data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
@@ -62,7 +74,7 @@ public class JsonResult implements Serializable {
      * @date 2021/3/8 17:15
      * @return cn.comesaday.coe.core.basic.bean.result.JsonResult
      */
-    public JsonResult setError(String message, Map<String, Object> data) {
+    public JsonResult setError(String message, Object data) {
         this.success = Boolean.FALSE;
         this.message = message;
         this.data = data;
@@ -90,7 +102,7 @@ public class JsonResult implements Serializable {
      * @date 2021/3/8 17:16
      * @return cn.comesaday.coe.core.basic.bean.result.JsonResult
      */
-    public JsonResult setSuccess(String message, Map<String, Object> data) {
+    public JsonResult setSuccess(String message, Object data) {
         this.success = Boolean.TRUE;
         this.message = message;
         this.data = data;
