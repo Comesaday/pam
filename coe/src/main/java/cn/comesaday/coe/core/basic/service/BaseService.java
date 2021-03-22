@@ -1,14 +1,21 @@
 package cn.comesaday.coe.core.basic.service;
 
+import cn.comesaday.coe.common.constant.NumConstant;
 import cn.comesaday.coe.core.jpa.bean.repository.MyRepository;
+import cn.comesaday.coe.core.jpa.constant.JpaConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -22,6 +29,18 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
 
     @Autowired
     private MyRepository<T, ID> myRepository;
+
+    /**
+     * <说明> 获 DomainClass
+     * @author ChenWei
+     * @date 2021/3/22 18:04
+     * @return java.lang.Class<T>
+     */
+    public Class<T> getDomainClass() {
+        ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
+        Type[] arguments = pt.getActualTypeArguments();
+        return  (Class<T>) arguments[NumConstant.I0];
+    }
 
     @Override
     public <S extends T> S save(S s) {
@@ -143,18 +162,190 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
         return myRepository.exists(example);
     }
 
+    /**
+     * <说明> 查询单条数据
+     * @param entity S
+     * @author ChenWei
+     * @date 2021/3/22 17:59
+     * @return S
+     */
     public <S extends T> S findOne(S entity) {
         Example<S> example = Example.of(entity);
         return this.findOne(example).orElse(null);
     }
 
+    /**
+     * <说明> 查询多条数据
+     * @param entity S
+     * @author ChenWei
+     * @date 2021/3/22 18:00
+     * @return java.util.List<S>
+     */
     public <S extends T> List<S> findAll(S entity) {
         Example<S> example = Example.of(entity);
         return this.findAll(example);
     }
 
+    /**
+     * <说明> 分页查询所有
+     * @param entity S
+     * @param pageable Pageable
+     * @author ChenWei
+     * @date 2021/3/22 18:00
+     * @return org.springframework.data.domain.Page<S>
+     */
     public <S extends T> Page<S> findAll(S entity, Pageable pageable) {
         Example<S> example = Example.of(entity);
         return this.findAll(example, pageable);
+    }
+
+    /**
+     * <说明> 按属性查询所有
+     * @param property 属性名
+     * @param value 属性值
+     * @author ChenWei
+     * @date 2021/3/22 18:01
+     * @return java.util.List<T>
+     */
+    public <S extends T> List<T> findAllByProperty(String property, Object value) throws NoSuchFieldException {
+        try {
+            Class<T> domainClass = this.getDomainClass();
+            Field field = domainClass.getDeclaredField(property);
+            T t = domainClass.newInstance();
+            // 设置属性值
+            field.setAccessible(Boolean.TRUE);
+            field.set(t, value);
+            // 默认查有效数据
+            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
+            isDelete.setAccessible(Boolean.TRUE);
+            isDelete.set(t, Boolean.FALSE);
+            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
+            isDisable.setAccessible(Boolean.TRUE);
+            isDisable.set(t, Boolean.FALSE);
+
+            Example<T> example = Example.of(t);
+            return this.myRepository.findAll(example);
+        }catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * <说明> 按属性查询单挑数据
+     * @param property 属性名
+     * @param value 属性值
+     * @author ChenWei
+     * @date 2021/3/22 18:01
+     * @return T
+     */
+    public <S extends T> T findByProperty(String property, Object value) throws NoSuchFieldException {
+        try {
+            Class<T> domainClass = this.getDomainClass();
+            Field field = domainClass.getDeclaredField(property);
+            T t = domainClass.newInstance();
+            // 设置属性值
+            field.setAccessible(Boolean.TRUE);
+            field.set(t, value);
+            // 默认查有效数据
+            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
+            isDelete.setAccessible(Boolean.TRUE);
+            isDelete.set(t, Boolean.FALSE);
+            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
+            isDisable.setAccessible(Boolean.TRUE);
+            isDisable.set(t, Boolean.FALSE);
+            Example<T> example = Example.of(t);
+            List<T> all = this.myRepository.findAll(example);
+            if (CollectionUtils.isEmpty(all)) {
+                return null;
+            }
+            return all.get(NumConstant.I0);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * <说明> 暗属性查询
+     * @param datas Map<String, Object>
+     * @author ChenWei
+     * @date 2021/3/22 18:03
+     * @return java.util.List<T>
+     */
+    public <S extends T> List<T> findAllByProperty(Map<String, Object> datas) throws NoSuchFieldException {
+        try {
+            Class<T> domainClass = this.getDomainClass();
+            if (CollectionUtils.isEmpty(datas)) {
+                return null;
+            }
+            T t = domainClass.newInstance();
+            for (Map.Entry<String, Object> entry : datas.entrySet()) {
+                Field field = domainClass.getDeclaredField(entry.getKey());
+                // 设置属性值
+                field.setAccessible(Boolean.TRUE);
+                field.set(t, entry.getValue());
+            }
+            // 默认查有效数据
+            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
+            isDelete.setAccessible(Boolean.TRUE);
+            isDelete.set(t, Boolean.FALSE);
+            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
+            isDisable.setAccessible(Boolean.TRUE);
+            isDisable.set(t, Boolean.FALSE);
+
+            Example<T> example = Example.of(t);
+            return this.myRepository.findAll(example);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * <说明> 暗属性查询
+     * @param datas Map<String, Object>
+     * @author ChenWei
+     * @date 2021/3/22 18:03
+     * @return T
+     */
+    public <S extends T> T findByProperty(Map<String, Object> datas) throws NoSuchFieldException {
+        try {
+            Class<T> domainClass = this.getDomainClass();
+            if (CollectionUtils.isEmpty(datas)) {
+                return null;
+            }
+            T t = domainClass.newInstance();
+            for (Map.Entry<String, Object> entry : datas.entrySet()) {
+                Field field = domainClass.getDeclaredField(entry.getKey());
+                // 设置属性值
+                field.setAccessible(Boolean.TRUE);
+                field.set(t, entry.getValue());
+            }
+            // 默认查有效数据
+            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
+            isDelete.setAccessible(Boolean.TRUE);
+            isDelete.set(t, Boolean.FALSE);
+            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
+            isDisable.setAccessible(Boolean.TRUE);
+            isDisable.set(t, Boolean.FALSE);
+            Example<T> example = Example.of(t);
+            List<T> all = this.myRepository.findAll(example);
+            if (CollectionUtils.isEmpty(all)) {
+                return null;
+            }
+            return all.get(NumConstant.I0);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
