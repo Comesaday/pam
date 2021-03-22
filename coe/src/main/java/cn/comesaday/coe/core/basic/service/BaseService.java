@@ -207,7 +207,7 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      * @date 2021/3/22 18:01
      * @return java.util.List<T>
      */
-    public <S extends T> List<T> findAllByProperty(String property, Object value) throws NoSuchFieldException {
+    public <S extends T> List<T> findAllByProperty(String property, Object value) {
         try {
             Class<T> domainClass = this.getDomainClass();
             Field field = domainClass.getDeclaredField(property);
@@ -225,7 +225,9 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
 
             Example<T> example = Example.of(t);
             return this.myRepository.findAll(example);
-        }catch (InstantiationException e) {
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -241,7 +243,7 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      * @date 2021/3/22 18:01
      * @return T
      */
-    public <S extends T> T findByProperty(String property, Object value) throws NoSuchFieldException {
+    public <S extends T> T findByProperty(String property, Object value) {
         try {
             Class<T> domainClass = this.getDomainClass();
             Field field = domainClass.getDeclaredField(property);
@@ -262,6 +264,8 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
                 return null;
             }
             return all.get(NumConstant.I0);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -277,7 +281,7 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      * @date 2021/3/22 18:03
      * @return java.util.List<T>
      */
-    public <S extends T> List<T> findAllByProperty(Map<String, Object> datas) throws NoSuchFieldException {
+    public <S extends T> List<T> findAllByProperty(Map<String, Object> datas) {
         try {
             Class<T> domainClass = this.getDomainClass();
             if (CollectionUtils.isEmpty(datas)) {
@@ -300,6 +304,8 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
 
             Example<T> example = Example.of(t);
             return this.myRepository.findAll(example);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -315,7 +321,7 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      * @date 2021/3/22 18:03
      * @return T
      */
-    public <S extends T> T findByProperty(Map<String, Object> datas) throws NoSuchFieldException {
+    public <S extends T> T findByProperty(Map<String, Object> datas) {
         try {
             Class<T> domainClass = this.getDomainClass();
             if (CollectionUtils.isEmpty(datas)) {
@@ -341,6 +347,8 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
                 return null;
             }
             return all.get(NumConstant.I0);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
