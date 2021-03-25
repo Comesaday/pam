@@ -1,13 +1,11 @@
 package cn.comesaday.coe.core.basic.service;
 
 import cn.comesaday.coe.common.constant.NumConstant;
+import cn.comesaday.coe.core.basic.builder.ConditionBuilder;
+import cn.comesaday.coe.core.basic.model.IdEntity;
 import cn.comesaday.coe.core.jpa.bean.repository.MyRepository;
-import cn.comesaday.coe.core.jpa.constant.JpaConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -21,11 +19,10 @@ import java.util.Optional;
 /**
  * <描述> BaseService
  * <详细背景>
- *
  * @author: ChenWei
  * @CreateAt: 2021-01-12 15:40
  */
-public abstract class BaseService<T, ID extends Serializable> implements MyRepository<T, ID> {
+public class BaseService<T, ID extends Serializable> implements MyRepository<T, ID> {
 
     @Autowired
     private MyRepository<T, ID> myRepository;
@@ -36,7 +33,7 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      * @date 2021/3/22 18:04
      * @return java.lang.Class<T>
      */
-    public Class<T> getDomainClass() {
+    public Class<T> getCurDomainClass() {
         ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
         Type[] arguments = pt.getActualTypeArguments();
         return  (Class<T>) arguments[NumConstant.I0];
@@ -209,21 +206,26 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      */
     public <S extends T> List<T> findAllByProperty(String property, Object value) {
         try {
-            Class<T> domainClass = this.getDomainClass();
-            Field field = domainClass.getDeclaredField(property);
-            T t = domainClass.newInstance();
-            // 设置属性值
-            field.setAccessible(Boolean.TRUE);
-            field.set(t, value);
+            Class<T> domainClass = this.getCurDomainClass();
+            T entity = domainClass.newInstance();
             // 默认查有效数据
-            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
-            isDelete.setAccessible(Boolean.TRUE);
-            isDelete.set(t, Boolean.FALSE);
-            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
-            isDisable.setAccessible(Boolean.TRUE);
-            isDisable.set(t, Boolean.FALSE);
-
-            Example<T> example = Example.of(t);
+            ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
+            // 设置属性值
+            Field field = null;
+            try {
+                field = domainClass.getDeclaredField(property);
+            } catch (NoSuchFieldException e) {
+                if (IdEntity.class.isAssignableFrom(domainClass)) {
+                    field = domainClass.getSuperclass().getDeclaredField(property);
+                }
+            } finally {
+                if (null == field) {
+                    throw new NoSuchFieldException("property not exist");
+                }
+            }
+            field.setAccessible(Boolean.TRUE);
+            field.set(entity, value);
+            Example<T> example = Example.of(entity);
             return this.myRepository.findAll(example);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
@@ -245,20 +247,27 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      */
     public <S extends T> T findByProperty(String property, Object value) {
         try {
-            Class<T> domainClass = this.getDomainClass();
-            Field field = domainClass.getDeclaredField(property);
-            T t = domainClass.newInstance();
-            // 设置属性值
-            field.setAccessible(Boolean.TRUE);
-            field.set(t, value);
+            Class<T> domainClass = this.getCurDomainClass();
+            T entity = domainClass.newInstance();
             // 默认查有效数据
-            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
-            isDelete.setAccessible(Boolean.TRUE);
-            isDelete.set(t, Boolean.FALSE);
-            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
-            isDisable.setAccessible(Boolean.TRUE);
-            isDisable.set(t, Boolean.FALSE);
-            Example<T> example = Example.of(t);
+            ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
+            // 设置属性值
+            // 设置属性值
+            Field field = null;
+            try {
+                field = domainClass.getDeclaredField(property);
+            } catch (NoSuchFieldException e) {
+                if (IdEntity.class.isAssignableFrom(domainClass)) {
+                    field = domainClass.getSuperclass().getDeclaredField(property);
+                }
+            } finally {
+                if (null == field) {
+                    throw new NoSuchFieldException("property not exist");
+                }
+            }
+            field.setAccessible(Boolean.TRUE);
+            field.set(entity, value);
+            Example<T> example = Example.of(entity);
             List<T> all = this.myRepository.findAll(example);
             if (CollectionUtils.isEmpty(all)) {
                 return null;
@@ -283,26 +292,32 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      */
     public <S extends T> List<T> findAllByProperty(Map<String, Object> datas) {
         try {
-            Class<T> domainClass = this.getDomainClass();
+            Class<T> domainClass = this.getCurDomainClass();
             if (CollectionUtils.isEmpty(datas)) {
                 return null;
             }
-            T t = domainClass.newInstance();
+            T entity = domainClass.newInstance();
+            // 默认查有效数据
+            ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
-                Field field = domainClass.getDeclaredField(entry.getKey());
+                // 设置属性值
+                Field field = null;
+                try {
+                    field = domainClass.getDeclaredField(entry.getKey());
+                } catch (NoSuchFieldException e) {
+                    if (IdEntity.class.isAssignableFrom(domainClass)) {
+                        field = domainClass.getSuperclass().getDeclaredField(entry.getKey());
+                    }
+                } finally {
+                    if (null == field) {
+                        throw new NoSuchFieldException("property not exist");
+                    }
+                }
                 // 设置属性值
                 field.setAccessible(Boolean.TRUE);
-                field.set(t, entry.getValue());
+                field.set(entity, entry.getValue());
             }
-            // 默认查有效数据
-            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
-            isDelete.setAccessible(Boolean.TRUE);
-            isDelete.set(t, Boolean.FALSE);
-            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
-            isDisable.setAccessible(Boolean.TRUE);
-            isDisable.set(t, Boolean.FALSE);
-
-            Example<T> example = Example.of(t);
+            Example<T> example = Example.of(entity);
             return this.myRepository.findAll(example);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
@@ -323,25 +338,32 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
      */
     public <S extends T> T findByProperty(Map<String, Object> datas) {
         try {
-            Class<T> domainClass = this.getDomainClass();
+            Class<T> domainClass = this.getCurDomainClass();
             if (CollectionUtils.isEmpty(datas)) {
                 return null;
             }
-            T t = domainClass.newInstance();
+            T entity = domainClass.newInstance();
+            // 默认查有效数据
+            ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
-                Field field = domainClass.getDeclaredField(entry.getKey());
+                // 设置属性值
+                Field field = null;
+                try {
+                    field = domainClass.getDeclaredField(entry.getKey());
+                } catch (NoSuchFieldException e) {
+                    if (IdEntity.class.isAssignableFrom(domainClass)) {
+                        field = domainClass.getSuperclass().getDeclaredField(entry.getKey());
+                    }
+                } finally {
+                    if (null == field) {
+                        throw new NoSuchFieldException("property not exist");
+                    }
+                }
                 // 设置属性值
                 field.setAccessible(Boolean.TRUE);
-                field.set(t, entry.getValue());
+                field.set(entity, entry.getValue());
             }
-            // 默认查有效数据
-            Field isDelete =  domainClass.getDeclaredField(JpaConstant.Field.ISDELETED);
-            isDelete.setAccessible(Boolean.TRUE);
-            isDelete.set(t, Boolean.FALSE);
-            Field isDisable =  domainClass.getDeclaredField(JpaConstant.Field.ISDISABLED);
-            isDisable.setAccessible(Boolean.TRUE);
-            isDisable.set(t, Boolean.FALSE);
-            Example<T> example = Example.of(t);
+            Example<T> example = Example.of(entity);
             List<T> all = this.myRepository.findAll(example);
             if (CollectionUtils.isEmpty(all)) {
                 return null;
@@ -352,6 +374,100 @@ public abstract class BaseService<T, ID extends Serializable> implements MyRepos
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * <说明> 按属性模糊查询
+     * @param property 属性
+     * @param value 属性值
+     * @author ChenWei
+     * @date 2021/3/24 10:42
+     * @return T
+     */
+    public <S extends T> List<T> findAllLike(String property, Object value) {
+        try {
+            Class<T> domainClass = this.getCurDomainClass();
+            T entity = domainClass.newInstance();
+            // 默认查有效数据
+            ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
+            // 设置属性值
+            Field field = null;
+            try {
+                field = domainClass.getDeclaredField(property);
+            } catch (NoSuchFieldException e) {
+                if (IdEntity.class.isAssignableFrom(domainClass)) {
+                    field = domainClass.getSuperclass().getDeclaredField(property);
+                }
+            } finally {
+                if (null == field) {
+                    throw new NoSuchFieldException("property not exist");
+                }
+            }
+            // 设置属性值
+            field.setAccessible(Boolean.TRUE);
+            field.set(entity, value);
+            ExampleMatcher matcher = ExampleMatcher.matching()
+                    .withMatcher(property,
+                            new ExampleMatcher.GenericPropertyMatcher().contains());
+            Example<T> example = Example.of(entity, matcher);
+            return myRepository.findAll(example);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * <说明> 按属性模糊查询
+     * @param property 属性
+     * @param value 属性值
+     * @author ChenWei
+     * @date 2021/3/24 10:42
+     * @return T
+     */
+    public <S extends T> T findLike(String property, Object value) {
+        try {
+            Class<T> domainClass = this.getCurDomainClass();
+            T entity = domainClass.newInstance();
+            // 默认查有效数据
+            ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
+            // 设置属性值
+            Field field = null;
+            try {
+                field = domainClass.getDeclaredField(property);
+            } catch (NoSuchFieldException e) {
+                if (IdEntity.class.isAssignableFrom(domainClass)) {
+                    field = domainClass.getSuperclass().getDeclaredField(property);
+                }
+            } finally {
+                if (null == field) {
+                    throw new NoSuchFieldException("property not exist");
+                }
+            }
+            // 设置属性值
+            field.setAccessible(Boolean.TRUE);
+            field.set(entity, value);
+            ExampleMatcher matcher = ExampleMatcher.matching()
+                    .withMatcher(property,
+                            new ExampleMatcher.GenericPropertyMatcher().contains());
+            Example<T> example = Example.of(entity, matcher);
+            List<T> all = myRepository.findAll(example);
+            if (CollectionUtils.isEmpty(all)) {
+                return null;
+            }
+            return all.get(NumConstant.I0);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
         return null;
