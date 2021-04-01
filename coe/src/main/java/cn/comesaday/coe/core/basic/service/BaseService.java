@@ -472,4 +472,15 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
         }
         return null;
     }
+
+    /**
+     * <说明> 根据id查询
+     * @param id ID
+     * @author ChenWei
+     * @date 2021/4/1 15:31
+     * @return T
+     */
+    public <S extends T> T findOne(ID id) {
+        return myRepository.findById(id).orElse(null);
+    }
 }
