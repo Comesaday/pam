@@ -138,7 +138,7 @@ public class MyRepositoryImpl<T, ID extends Serializable>
     public <S extends T> S update(S entity) {
         try {
             Class<?> clazz = entity.getClass();
-            Field field = clazz.getDeclaredField(JpaConstant.Field.UPDATEAT);
+            Field field = clazz.getSuperclass().getDeclaredField(JpaConstant.Field.UPDATEAT);
             field.setAccessible(Boolean.FALSE);
             field.set(entity, new Date());
             return super.save(entity);
