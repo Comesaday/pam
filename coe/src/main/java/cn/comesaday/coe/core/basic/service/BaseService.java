@@ -419,15 +419,18 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
 
     /**
      * <说明> 根据属性更新
-     * @param property 属性名
-     * @param value 属性值
+     * @param conditionProperty 条件属性名
+     * @param conditionValue 条件属性值
+     * @param property 条件属性名
+     * @param value 条件属性值
      * @author ChenWei
      * @date 2021/4/8 14:30
      * @return void
      */
-    public <S extends T> void updateByProperty(String property, Object value, Object newValue) {
+    public <S extends T> void updateByProperty(
+            String conditionProperty, Object conditionValue, String property, Object value) {
         try {
-            List<T> all = this.findAllByProperty(property, value);
+            List<T> all = this.findAllByProperty(conditionProperty, conditionValue);
             for (T entity : all) {
                 Class<T> domainClass = (Class<T>) entity.getClass();
                 // 默认查有效数据
@@ -435,7 +438,36 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
                 // 设置属性值
                 Field field = this.getField(domainClass, property);
                 field.setAccessible(Boolean.TRUE);
-                field.set(entity, newValue);
+                field.set(entity, value);
+                this.save(entity);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * <说明> 通过id更新数据
+     * @param id 主键id
+     * @param property 要更新的属性名
+     * @param value 要更新的属性值
+     * @author ChenWei
+     * @date 2021/4/8 15:41
+     * @return void
+     */
+    public <S extends T> void updateById(ID id, String property, Object value) {
+        try {
+            T entity = this.findById(id).orElse(null);
+            if (null != entity) {
+                Class<T> domainClass = (Class<T>) entity.getClass();
+                // 默认查有效数据
+                ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
+                // 设置属性值
+                Field field = this.getField(domainClass, property);
+                field.setAccessible(Boolean.TRUE);
+                field.set(entity, value);
                 this.save(entity);
             }
         } catch (IllegalAccessException e) {
