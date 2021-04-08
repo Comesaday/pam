@@ -139,7 +139,7 @@ public class MyRepositoryImpl<T, ID extends Serializable>
         try {
             Class<?> clazz = entity.getClass();
             Field field = clazz.getSuperclass().getDeclaredField(JpaConstant.Field.UPDATEAT);
-            field.setAccessible(Boolean.FALSE);
+            field.setAccessible(Boolean.TRUE);
             field.set(entity, new Date());
             return super.save(entity);
         } catch (NoSuchFieldException e) {
