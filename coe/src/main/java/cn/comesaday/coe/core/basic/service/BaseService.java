@@ -211,18 +211,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
             // 默认查有效数据
             ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             // 设置属性值
-            Field field = null;
-            try {
-                field = domainClass.getDeclaredField(property);
-            } catch (NoSuchFieldException e) {
-                if (IdEntity.class.isAssignableFrom(domainClass)) {
-                    field = domainClass.getSuperclass().getDeclaredField(property);
-                }
-            } finally {
-                if (null == field) {
-                    throw new NoSuchFieldException("property not exist");
-                }
-            }
+            Field field = this.getField(domainClass, property);
             field.setAccessible(Boolean.TRUE);
             field.set(entity, value);
             Example<T> example = Example.of(entity);
@@ -252,19 +241,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
             // 默认查有效数据
             ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             // 设置属性值
-            // 设置属性值
-            Field field = null;
-            try {
-                field = domainClass.getDeclaredField(property);
-            } catch (NoSuchFieldException e) {
-                if (IdEntity.class.isAssignableFrom(domainClass)) {
-                    field = domainClass.getSuperclass().getDeclaredField(property);
-                }
-            } finally {
-                if (null == field) {
-                    throw new NoSuchFieldException("property not exist");
-                }
-            }
+            Field field = this.getField(domainClass, property);
             field.setAccessible(Boolean.TRUE);
             field.set(entity, value);
             Example<T> example = Example.of(entity);
@@ -301,18 +278,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
             ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
                 // 设置属性值
-                Field field = null;
-                try {
-                    field = domainClass.getDeclaredField(entry.getKey());
-                } catch (NoSuchFieldException e) {
-                    if (IdEntity.class.isAssignableFrom(domainClass)) {
-                        field = domainClass.getSuperclass().getDeclaredField(entry.getKey());
-                    }
-                } finally {
-                    if (null == field) {
-                        throw new NoSuchFieldException("property not exist");
-                    }
-                }
+                Field field = this.getField(domainClass, entry.getKey());
                 // 设置属性值
                 field.setAccessible(Boolean.TRUE);
                 field.set(entity, entry.getValue());
@@ -347,18 +313,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
             ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
                 // 设置属性值
-                Field field = null;
-                try {
-                    field = domainClass.getDeclaredField(entry.getKey());
-                } catch (NoSuchFieldException e) {
-                    if (IdEntity.class.isAssignableFrom(domainClass)) {
-                        field = domainClass.getSuperclass().getDeclaredField(entry.getKey());
-                    }
-                } finally {
-                    if (null == field) {
-                        throw new NoSuchFieldException("property not exist");
-                    }
-                }
+                Field field = this.getField(domainClass, entry.getKey());
                 // 设置属性值
                 field.setAccessible(Boolean.TRUE);
                 field.set(entity, entry.getValue());
@@ -394,18 +349,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
             // 默认查有效数据
             ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             // 设置属性值
-            Field field = null;
-            try {
-                field = domainClass.getDeclaredField(property);
-            } catch (NoSuchFieldException e) {
-                if (IdEntity.class.isAssignableFrom(domainClass)) {
-                    field = domainClass.getSuperclass().getDeclaredField(property);
-                }
-            } finally {
-                if (null == field) {
-                    throw new NoSuchFieldException("property not exist");
-                }
-            }
+            Field field = this.getField(domainClass, property);
             // 设置属性值
             field.setAccessible(Boolean.TRUE);
             field.set(entity, value);
@@ -439,18 +383,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
             // 默认查有效数据
             ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
             // 设置属性值
-            Field field = null;
-            try {
-                field = domainClass.getDeclaredField(property);
-            } catch (NoSuchFieldException e) {
-                if (IdEntity.class.isAssignableFrom(domainClass)) {
-                    field = domainClass.getSuperclass().getDeclaredField(property);
-                }
-            } finally {
-                if (null == field) {
-                    throw new NoSuchFieldException("property not exist");
-                }
-            }
+            Field field = this.getField(domainClass, property);
             // 设置属性值
             field.setAccessible(Boolean.TRUE);
             field.set(entity, value);
@@ -482,5 +415,57 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
      */
     public <S extends T> T findOne(ID id) {
         return myRepository.findById(id).orElse(null);
+    }
+
+    /**
+     * <说明> 根据属性更新
+     * @param property 属性名
+     * @param value 属性值
+     * @author ChenWei
+     * @date 2021/4/8 14:30
+     * @return void
+     */
+    public <S extends T> void updateByProperty(String property, Object value) {
+        try {
+            List<T> all = this.findAllByProperty(property, value);
+            for (T entity : all) {
+                Class<T> domainClass = (Class<T>) entity.getClass();
+                // 默认查有效数据
+                ConditionBuilder.builder().setNotDeletedAndDisabled(domainClass, entity);
+                // 设置属性值
+                Field field = this.getField(domainClass, property);
+                field.setAccessible(Boolean.TRUE);
+                field.set(entity, value);
+                this.save(entity);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * <说明> 根据属性名获取属性
+     * @param domainClass Class<T>
+     * @param property 属性
+     * @author ChenWei
+     * @date 2021/4/8 14:32
+     * @return java.lang.reflect.Field
+     */
+    private Field getField(Class<T> domainClass, String property) throws NoSuchFieldException {
+        Field field = null;
+        try {
+            field = domainClass.getDeclaredField(property);
+        } catch (NoSuchFieldException e) {
+            if (IdEntity.class.isAssignableFrom(domainClass)) {
+                field = domainClass.getSuperclass().getDeclaredField(property);
+            }
+        } finally {
+            if (null == field) {
+                throw new NoSuchFieldException("property not exist");
+            }
+        }
+        return field;
     }
 }
