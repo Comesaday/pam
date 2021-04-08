@@ -425,7 +425,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
      * @date 2021/4/8 14:30
      * @return void
      */
-    public <S extends T> void updateByProperty(String property, Object value) {
+    public <S extends T> void updateByProperty(String property, Object value, Object newValue) {
         try {
             List<T> all = this.findAllByProperty(property, value);
             for (T entity : all) {
@@ -435,7 +435,7 @@ public class BaseService<T, ID extends Serializable> implements MyRepository<T, 
                 // 设置属性值
                 Field field = this.getField(domainClass, property);
                 field.setAccessible(Boolean.TRUE);
-                field.set(entity, value);
+                field.set(entity, newValue);
                 this.save(entity);
             }
         } catch (IllegalAccessException e) {
